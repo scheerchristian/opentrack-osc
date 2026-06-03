@@ -1,0 +1,36 @@
+# OpenTrack → OSC bridge configuration
+
+[opentrack]
+# Network interface to listen on ("0.0.0.0" = all interfaces)
+listen_host = "0.0.0.0"
+# UDP port matching OpenTrack's "UDP over network" output port
+listen_port = 4242
+
+[osc]
+# Target host that receives OSC messages
+target_host = "127.0.0.1"
+target_port = 8000
+
+[mapping]
+# "bundle"     – all six axes in a single OSC message as float arguments
+# "individual" – one OSC message per axis
+mode = "bundle"
+
+# OSC address used in "bundle" mode
+bundle_address = "/opentrack/pose"
+
+# OSC addresses used in "individual" mode.
+# You can use any valid OSC address string here.
+[mapping.individual]
+x     = "/opentrack/x"
+y     = "/opentrack/y"
+z     = "/opentrack/z"
+yaw   = "/opentrack/yaw"
+pitch = "/opentrack/pitch"
+roll  = "/opentrack/roll"
+
+[logging]
+# "DEBUG", "INFO", "WARNING", "ERROR"
+level = "DEBUG"
+# Log every received packet (noisy – use DEBUG level to see values)
+show_values = true
