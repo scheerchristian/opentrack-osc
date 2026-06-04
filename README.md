@@ -71,6 +71,20 @@ bundle_address = "/opentrack/pose"
 
 The receiving application gets one message at `/opentrack/pose` with arguments `(x, y, z, yaw, pitch, roll)`.
 
+**`split`** — OSC messages are split into position (x, y, z) and rotation (yaw, pitch, roll) containing three float arguments each:
+
+```toml
+[mapping]
+mode = "split"
+
+[mappling.split]
+position = "/opentrack/position"
+rotation = "/opentrack/rotation"
+```
+
+The receiving application gets one message at `/opentrack/pose` with arguments `(x, y, z, yaw, pitch, roll)`.
+
+
 **`individual`** — one OSC message per axis:
 
 ```toml

@@ -32,6 +32,7 @@ from pythonosc.osc_message_builder import OscMessageBuilder
 OPENTRACK_FORMAT = "<6d"  # 6 little-endian doubles
 OPENTRACK_SIZE = struct.calcsize(OPENTRACK_FORMAT)
 AXIS_NAMES = ("x", "y", "z", "yaw", "pitch", "roll")
+SPLIT_COMPONENT_NAMES = ("position", "rotation")
 
 
 @dataclass
@@ -42,6 +43,7 @@ class Config:
     target_port: int
     mode: str               # "bundle" | "individual"
     bundle_address: str
+    split_addresses: dict[str, str]    
     individual_addresses: dict[str, str]
     show_values: bool
 
@@ -56,13 +58,18 @@ def load_config(path: Path) -> Config:
     log_cfg = raw.get("logging", {})
 
     mode = mapping.get("mode", "bundle").lower()
-    if mode not in ("bundle", "individual"):
-        sys.exit(f"config: mapping.mode must be 'bundle' or 'individual', got '{mode}'")
+    if mode not in ("bundle", "split", "individual"):
+        sys.exit(f"config: mapping.mode must be 'bundle', 'split' or 'individual', got '{mode}'")
 
     individual = mapping.get("individual", {})
     for axis in AXIS_NAMES:
         if axis not in individual:
             individual[axis] = f"/opentrack/{axis}"
+    
+    split = mapping.get("split", {})
+    for component in SPLIT_COMPONENT_NAMES:
+        if component not in split:
+            split[component] = f"/opentrack/{component}"
 
     log_level = getattr(logging, log_cfg.get("level", "INFO").upper(), logging.INFO)
     logging.basicConfig(
@@ -79,6 +86,7 @@ def load_config(path: Path) -> Config:
         mode=mode,
         bundle_address=mapping.get("bundle_address", "/opentrack/pose"),
         individual_addresses=individual,
+        split_addresses=split,
         show_values=log_cfg.get("show_values", False),
     )
 
@@ -88,6 +96,19 @@ def build_bundle_message(address: str, values: tuple) -> bytes:
     for v in values:
         builder.add_arg(float(v))
     return builder.build().dgram
+
+def build_split_messages(
+    addresses: dict[str, str], values: tuple
+) -> list[bytes]:
+    position_builder = OscMessageBuilder(address=addresses[SPLIT_COMPONENT_NAMES[0]])
+    rotation_builder = OscMessageBuilder(address=addresses[SPLIT_COMPONENT_NAMES[1]])
+    position_values = [float(v) for i, v in enumerate(values) if i < 3]
+    rotation_values = [float(v) for i, v in enumerate(values) if i >= 3]
+    for i in range(3):
+        position_builder.add_arg(position_values[i])
+        rotation_builder.add_arg(rotation_values[i])
+    messages = [position_builder.build().dgram, rotation_builder.build().dgram]
+    return messages
 
 
 def build_individual_messages(
@@ -137,6 +158,9 @@ def run(cfg: Config) -> None:
             if cfg.mode == "bundle":
                 dgram = build_bundle_message(cfg.bundle_address, values)
                 client._sock.sendto(dgram, (cfg.target_host, cfg.target_port))
+            elif cfg.mode == "split":
+                for dgram in build_split_messages(cfg.split_addresses, values):
+                    client._sock.sendto(dgram, (cfg.target_host, cfg.target_port))
             else:
                 for dgram in build_individual_messages(cfg.individual_addresses, values):
                     client._sock.sendto(dgram, (cfg.target_host, cfg.target_port))
