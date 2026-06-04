@@ -1,7 +1,7 @@
 # opentrack-osc
 
 Bridges [OpenTrack](https://github.com/opentrack/opentrack) head-tracking output to any OSC-capable application over the network.
-This is only relevant for macOS where [OpenTrack](https://github.com/opentrack/opentrack) currently does not support OSC ouput directly.
+This is only relevant for macOS where [OpenTrack](https://github.com/opentrack/opentrack) currently does not support OSC output directly.
 
 OpenTrack sends pose data as raw UDP packets. This script receives those packets and re-sends each frame as an OSC message to a configurable host and port.
 
