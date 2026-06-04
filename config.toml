@@ -22,8 +22,8 @@ bundle_address = "/opentrack/pose"
 
 # OSC address used in "split" mode
 [mapping.split]
-position = "opentrack/position"
-rotation = "opentrack/rotation"
+position = "/opentrack/position"
+rotation = "/opentrack/rotation"
 
 # OSC addresses used in "individual" mode.
 # You can use any valid OSC address string here.
