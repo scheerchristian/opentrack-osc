@@ -7,14 +7,8 @@ OpenTrack sends pose data as raw UDP packets. This script receives those packets
 
 ## Requirements
 
-- Python 3.9 or newer
+- [uv](https://docs.astral.sh/uv/)
 - OpenTrack with the **UDP over network** output protocol enabled
-
-## Installation
-
-```bash
-pip install -r requirements.txt
-```
 
 ## OpenTrack setup
 
@@ -27,13 +21,13 @@ pip install -r requirements.txt
 ## Running
 
 ```bash
-python opentrack_osc.py
+uv run opentrack_osc.py
 ```
 
 By default the script looks for `config.toml` in the same directory. Pass `-c` to use a different path:
 
 ```bash
-python opentrack_osc.py -c /path/to/my_config.toml
+uv run opentrack_osc.py -c /path/to/my_config.toml
 ```
 
 Press `Ctrl+C` to stop.

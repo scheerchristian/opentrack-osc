@@ -1,4 +1,11 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#   "python-osc>=1.8.0",
+#   "tomli>=2.0.0; python_version < '3.11'",
+# ]
+# ///
 """
 opentrack_osc.py — Forward OpenTrack UDP output to an OSC target.
 
